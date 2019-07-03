@@ -18,7 +18,7 @@ def generate_grid(dim, p):
         temp = []
         y = 0
         while(y<dim):
-            # The ugly-looking statementes are just making sure we don't block the Start or Goal cells.
+            # The ugly-looking statements are just making sure we don't block the Start or Goal cells.
             if( ((x!=0 or y!=0) and (x!=(dim-1) or (y!=dim-1)))  and is_cell_blocked(p) ):
                 temp.append(BLOCKED)
             else:
