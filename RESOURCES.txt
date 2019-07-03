@@ -1,0 +1,83 @@
+Download python for windows-->https://www.youtube.com/watch?v=OV9WlTd9a2U
+
+**Make sure you get Python3, not python2. The python community will drop support for python2 on January, 2020.**
+
+Play around with python on IDLE, or on your terminal. It turns out you can actually use your command prompt to run python on Windows!
+Once you get acquainted with python, I recommend downloading a text editor.
+You can use whatever you want; Notepad, Notepad++, Atom, Sublime Text, etc. I personally recommend Atom because it is lightweight, fast and powerful!
+And it is also free and open source software under the MIT license :).
+
+You can download Atom here-->https://atom.io/
+
+Check out the python docs-->https://docs.python.org/3/library/index.html
+
+Check out Nick Parlante's Python Tutorial-->https://www.youtube.com/watch?v=tKTZoB2Vjuk
+
+Yes, Nick is using python2. However, even then, this tutorial is SUPER valuable and easy to follow. There is very few things in python2 that you cannot do in python3.
+This will give you a good grasp of the basics!
+
+
+Play a bit more with python; write a "Hello World"; play around with lists (python's version of arrays);play with simple math operations; variables, etc.
+
+Remember that there is no such thing as "strict data types in python". Meaning there isn't such thing as "int x = 4", like you'd see in Java, C#, C++, etc.
+In python one can just say, "x = 4" and python, one could say, will figure out in the fly that x is meant to be an integer.
+
+Python is an interpreted language, which means there isn't a classical compiler like there is in Java or C++. And also as such in python there
+isn't a "main" function that starts everything. In python, the Python Interpreter will start at the top of your python script(your python program)
+and just run. Here's what I mean:
+
+Imagine we were to write "Hello World".
+
+In Java it will look like this (HelloWorld.class):
+
+1.public class HelloWorld()
+2.{
+3.public static void main(String[] args)
+4.{
+5.  System.out.println("Hello World, from Java!");
+6.}
+7.}
+
+Then you would tell your favorite IDE to run it (after it compiles your class).
+And it runs--> "Hello World, from Java!"
+
+
+
+In python it will look like this (HelloWorld.py):
+
+1.print("Hello World, from Python!")
+
+You could type this into the python shell and it will just run!
+Now, unlike Java, this code is NOT compiled. It is interpreted.
+That means that, on the fly, the Python Interpreter will translate(roughly speaking) your line of code into binary code for your computer to understand.
+
+Side note: I believe (I could be wrong about this) that the python interpreter has a transcompiler (a compiler that translates source code from one language to another)
+that will sometimes translate your code into C source code for efficiency. How cool is that?!
+
+As you can see, there is no static keyword, function(method) declaration, class header or curly braces/semi-colons.
+Because python is a language that is very friendly with the functional paradigm, it just runs without much scaffolding of classes/objects.
+However, this does not mean that we cannot have classes/objects in python. In fact we can, but I don't think for this project we'll need classes/objects.
+I doubt we'll need to worry much about objects for this class at all. But only time will tell. Besides, I don't want to go down the rabbit hole of objects
+in python because that's beyond the scope of this project. However, if you're still curious about python objects/classes check out the docs here-->https://docs.python.org/3/library/index.html.
+Speaking of docs, don't be afraid to dive into the python docs. They are one of the best well-written collection of documentation for programming languages there is on the internet!
+
+Where was I?
+
+Functional programming. In a nutshell, you can think of python as a functional-programming friendly language that is sort of "cool" with anything.
+You want a list of "things"? You can have it:
+
+list_of_things = ['first','second',3]
+
+That is a "list", or an array. It's fine if it's easier to think of these things as "arrays", but try your best to get in the mindset of calling them "lists", because
+there is a difference between the two, philosophically and technically speaking. Something you'll notice is that lists don't need much information to store data.
+
+For instance in Java you would declare a list of integers like this:
+
+int[] list_of_int = new int[20];
+
+Since remember that python is "cool" with most things, it doesn't need to know out of the gate how many things/integers you need to store beforehand.
+It doesn't need the Type of things you you would be storing in the list. And as you have also probably noticed, no semicolon!
+
+
+
+I'll keep updating this document with thoughts/resources that hopefully will give you a better understanding of python.
