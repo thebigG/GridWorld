@@ -2,6 +2,7 @@ from random import random
 import math
 import sys
 import time
+import copy
 
 def euclidean_distance(x1,y1,x2,y2):
     # print('values taken into euclidean_distance:' +str((x1 + 1)) +',' + str((y1 + 1))+ ',' + str(x2)+ ',' + str(y2) )
@@ -10,21 +11,24 @@ def euclidean_distance(x1,y1,x2,y2):
 BLOCKED = 1
 UNBLOCKED = 0
 HEURISTIC =None
-NORTH = 'n'
-SOUTH = 's'
-EAST = 'e'
-WEST = 'w'
-STUCK  = 'stuck'
+EAST_ARROW = str(U'\uFFEB')
+WEST_ARROW = str(U'\uFFE9')
+NORTH_ARROW = str(U'\uFFEA')
+SOUTH_ARROW = str(U'\uFFEC')
+
+NORTH = 1
+SOUTH = 2
+WEST = 3
+EAST = 4
 
 OPEN_LIST = []
 RED_LIST = set()
 CLOSED_LIST = []
 CLOSED_LIST_BACKTRACK = []
+AGENT = 'S'
+GOAL = 'G'
 
-
-
-
-
+print('ARROW_DIRECTION:', EAST_ARROW)
 
 def main():
     global HEURISTIC
@@ -77,7 +81,7 @@ def check_bounds(x,y,dim):
 def find_potential_moves(x,y):
     # print(x,y)
     # print('returning:' + str(((x-1,y),(x+1,y),(x,y-1),(x,y+1))))
-    return ((x-1,y),(x+1,y),(x,y-1),(x,y+1))
+    return ((x-1,y, NORTH_ARROW),(x+1,y, SOUTH_ARROW ),(x,y-1, WEST_ARROW),(x,y+1, EAST_ARROW))
 
 
 
@@ -119,12 +123,73 @@ def make_move(Grid,current_agent_position, DIM ):
     # print('legal_moves: ' + str(legal_moves))
     for legal_move in legal_moves:
         cost = calc_cost(legal_move[0],legal_move[1], DIM)
-        OPEN_LIST.append(  ( legal_move[0],legal_move[1],cost)   )
+        OPEN_LIST.append(  ( legal_move[0],legal_move[1],cost, legal_move[2])   )
         # print('OPEN_LIST from move function:', OPEN_LIST)
     sort_paths(OPEN_LIST)
 
     # print('SORTED PATHS######:', OPEN_LIST)
     return (make_return, current_agent_position)
+
+
+def move_for_trajectory(x_destination, y_destination, copy_grid, ARROW_DIRECTION):
+    copy_grid[x_destination][y_destination] = ARROW_DIRECTION
+
+
+
+def make_move_for_trajectory(copy_grid,current_agent_position, DIM, copy_of_open_list ):
+    # print('current_agent_position:', current_agent_position)
+    # print('OPEN_LIST before path loop~~~~~~~:', OPEN_LIST)
+    # print('CLOSED_LIST before path loop:', CLOSED_LIST)
+    # print('RED_LIST before path loop:', RED_LIST)
+    make_return = False
+    for path in copy_of_open_list:
+        # print('path in OPEN_LIST loop--->>>>>:', path)
+        if ( (copy_grid[path[0]][path[1]] == UNBLOCKED or copy_grid[path[0]][path[1]] ==GOAL)  ):
+            # print('move args:', (current_agent_position[0],current_agent_position[1],path[0], path[1], Grid))
+            # print('Haha')
+            print('*** TESTING PATH:',path)
+            move_for_trajectory(path[0], path[1], copy_grid, path[3])
+            current_agent_position = (path[0], path[1])
+            # print('Haha')
+            # print('Haha')
+            make_return = True
+            break
+    copy_of_open_list.clear()
+    # print('new current_agent_positions@@@@@:' ,(current_agent_position[0],current_agent_position[1], DIM, Grid))
+    legal_moves = get_legal_moves(current_agent_position[0],current_agent_position[1], DIM, copy_grid )
+    # print('legal_moves: ' + str(legal_moves))
+    for legal_move in legal_moves:
+        cost = calc_cost(legal_move[0],legal_move[1], DIM)
+        copy_of_open_list.append(  ( legal_move[0],legal_move[1],cost, legal_move[2])   )
+        # print('OPEN_LIST from move function:', OPEN_LIST)
+    sort_paths(copy_of_open_list)
+
+    # print('SORTED PATHS######:', OPEN_LIST)
+    return  (current_agent_position,make_return)
+
+
+
+def show_trajectory(Grid, current_agent_position, DIM):
+    copy_grid = copy.deepcopy(Grid)
+    copy_of_open_list = OPEN_LIST.copy()
+    legal_moves = get_legal_moves(current_agent_position[0],current_agent_position[1], DIM, copy_grid )
+    # print('legal_moves: ' + str(legal_moves))
+    for legal_move in legal_moves:
+        cost = calc_cost(legal_move[0],legal_move[1], DIM)
+        copy_of_open_list.append(  ( legal_move[0],legal_move[1],cost, legal_move[2])   )
+        sort_paths(copy_of_open_list)
+    print('*Optimistic Trajectory*')
+    did_agent_move = True
+    while(copy_grid[DIM-1][DIM-1] ==  'G' and did_agent_move):
+        return_val = make_move_for_trajectory(copy_grid,current_agent_position, DIM, copy_of_open_list)
+        current_agent_position = return_val[0]
+        did_agent_move  = return_val[1]
+        # print('value of did_agent_move:', did_agent_move)
+        print_grid(copy_grid)
+    print('*Optimistic Trajectory*')
+
+
+
 
 def A_Star_Search(Grid,S,DIM):
         global OPEN_LIST
@@ -143,7 +208,7 @@ def A_Star_Search(Grid,S,DIM):
         # print('legal_moves: ' + str(legal_moves))
         for legal_move in legal_moves:
             cost = calc_cost(legal_move[0],legal_move[1], DIM)
-            OPEN_LIST.append(  ( legal_move[0],legal_move[1],cost)   )
+            OPEN_LIST.append(  ( legal_move[0],legal_move[1],cost, legal_move[2])    )
         sort_paths(OPEN_LIST)
         count = 0
         while(Grid[DIM-1][DIM-1] ==  'G'):
@@ -170,7 +235,7 @@ def A_Star_Search(Grid,S,DIM):
                         # print('legal_moves: ' + str(legal_moves))
                         for legal_move in legal_moves:
                             cost = calc_cost(legal_move[0],legal_move[1], DIM)
-                            OPEN_LIST.append(  ( legal_move[0],legal_move[1],cost)   )
+                            OPEN_LIST.append( ( legal_move[0],legal_move[1],cost, legal_move[2])  )
                             # print('OPEN_LIST from move function:', OPEN_LIST)
                             sort_paths(OPEN_LIST)
                     else:
@@ -182,22 +247,13 @@ def A_Star_Search(Grid,S,DIM):
                 print('There is no path between agent and goal:')
                 print_grid(Grid)
                 return False
+            show_trajectory(Grid,current_agent_position, DIM)
             count += 1
         return True
 
 
             # if(count>25):
                 # break
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -212,40 +268,7 @@ def chebyshev_distance(x1,y1,x2,y2):
     return max(abs((x1 + 1) - (x2 + 1) ), abs( (y1 + 1) - (y2 + 1)))
 
 
-def calc_north_cost(S, dim):
-    return(S[0] - 1, S[1], HEURISTIC(S[0] - 1, S[1], dim, dim))
 
-def calc_south_cost(S, dim):
-    # print('values being passed to HEURISTIC:' + str((int(S[0]), int(S[1])) ))
-    # print('calc_south_cost:' +  str(S)+ str(dim))
-    return(int(S[0]) + 1, int(S[1]) , HEURISTIC(int(S[0]) + 1, int(S[1] ), dim, dim))
-
-def calc_west_cost(S, dim):
-    return(S[0], S[1] - 1, HEURISTIC(S[0], S[1] - 1, dim, dim))
-
-def calc_east_cost(S, dim):
-    return(int(S[0]), S[1] + 1, HEURISTIC(S[0], S[1] + 1, dim, dim))
-
-def check_red_north(X, Y):
-    if ( (X-1, Y) == 1):
-        RED_LIST.add( X-1, Y)
-
-
-
-def check_red_south(X, Y):
-    if( (X+1, Y) == 1):
-        RED_LIST.add( X+1, Y)
-
-
-
-def check_red_west(X, Y):
-    if( (X, Y-1) == 1):
-        RED_LIST.add( X, Y-1)
-
-
-def check_red_east(X, Y):
-    if ( (X, Y+1) == 1):
-        RED_LIST.add( X, Y+1)
 
 
 def move(source_x,source_y, x_destination, y_destination,G):
@@ -255,69 +278,7 @@ def move(source_x,source_y, x_destination, y_destination,G):
 
 
 
-#
-#
-#
-# def move_agent_north(grid, agent_position):
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     grid[x_agent_position][y_agent_position], grid[x_agent_position-1][y_agent_position]  = grid[x_agent_position- 1], grid[y_agent_position], grid[x_agent_position][y_agent_position]
-#     print_grid(grid)
-#
-# def move_agent_south(grid, agent_position):
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     grid[x_agent_position][y_agent_position], grid[x_agent_position+1][y_agent_position]  = grid[x_agent_position+ 1][y_agent_position], grid[x_agent_position][y_agent_position]
-#     print_grid(grid)
-#
-# def move_agent_east(grid, agent_position):
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     grid[x_agent_position][y_agent_position], grid[x_agent_position][y_agent_position+1]  = grid[x_agent_position][y_agent_position+1], grid[x_agent_position][y_agent_position]
-#     print_grid(grid)
-#
-#
-# def move_agent_west(grid, agent_position):
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     grid[x_agent_position][y_agent_position], grid[x_agent_position][y_agent_position-1]  = grid[x_agent_position][y_agent_position-1], grid[x_agent_position][y_agent_position]
-#     print_grid(grid)
-#
-# def look_and_tell_south_cell(grid,agent_position):
-#     """
-#     Looks and tell if the south cell, relative to agent_position, is blocked or not.
-#     If it is unblocked, this function returns True. If it is blocked, it returns false.
-#     """
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     return grid[x_agent_position+1][y_agent_position]==UNBLOCKED
-#
-# def look_and_tell_north_cell(grid,agent_position):
-#     """
-#     Looks and tell if the north cell, relative to agent_position, is blocked or not.
-#     If it is unblocked, this function returns True. If it is blocked, it returns false.
-#     """
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     return grid[x_agent_position-1][y_agent_position]==UNBLOCKED
-#
-# def look_and_tell_east_cell(grid,agent_position):
-#     """
-#     Looks and tell if the east cell, relative to agent_position, is blocked or not.
-#     If it is unblocked, this function returns True. If it is blocked, it returns false.
-#     """
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     return grid[x_agent_position][y_agent_position+1]==UNBLOCKED
-#
-# def look_and_tell_west_cell(grid,agent_position):
-#     """
-#     Looks and tell if the west cell, relative to agent_position, is blocked or not.
-#     If it is unblocked, this function returns True. If it is blocked, it returns false.
-#     """
-#     x_agent_position = agent_position[0]
-#     y_agent_position = agent_position[1]
-#     return grid[x_agent_position][y_agent_position-1]==UNBLOCKED
+
 
 def is_cell_blocked(p):
     random_num = random()
@@ -339,7 +300,7 @@ def generate_grid(dim, p):
             y += 1
         grid.append(temp)
         x += 1
-    grid[0][0] = 'S'
+    grid[0][0] = AGENT
     grid[dim-1][dim-1] = 'G'
     return grid
 
@@ -354,6 +315,23 @@ def print_grid(grid):
         formatted_grid += "\n"
     print(formatted_grid)
 
+def print_grid_deep(grid):
+    formatted_grid = ''
+    formatted_grid += '['
+    print(']')
+    for row in grid:
+        for cell in row:
+            print(cell, end='')
+            print(',', end='')
+        print( '\n', end='')
+
+
 
 
 main()
+
+
+def add_to_copy(my_list, add_arg):
+    copy_list = my_list.copy()
+    copy_list.append(add_arg)
+    return add_arg
